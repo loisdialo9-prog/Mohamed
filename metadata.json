@@ -1,0 +1,9 @@
+{
+  "name": "Mohamed AI - Mali & Africa Assistant",
+  "description": "Un assistant intelligent fier de ses racines maliennes, parlant Français et Bambara, expert en culture africaine et prêt pour une communication ouverte avec intégration Google Maps.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
