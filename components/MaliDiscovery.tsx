@@ -7,155 +7,93 @@ interface MaliDiscoveryProps {
   onExploreTopic: (topic: string) => void;
 }
 
-const MALI_SECTIONS = [
-  {
-    id: 'history',
-    title: 'Histoire & Empires',
-    desc: 'Du puissant Empire du Mali de Mansa Moussa à l\'Empire Songhaï.',
-    image: 'https://images.unsplash.com/photo-1599939304381-67856b3e7ed2?auto=format&fit=crop&q=80&w=800',
-    prompt: 'Parle-moi des grands empires du Mali et de Mansa Moussa, l\'homme le plus riche de l\'histoire.',
-    icon: '👑'
-  },
-  {
-    id: 'architecture',
-    title: 'Architecture en Terre',
-    desc: 'La majestueuse Mosquée de Djenné et les manuscrits de Tombouctou.',
-    image: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&q=80&w=800',
-    prompt: 'Explique-moi l\'architecture soudano-sahélienne en terre crue, notamment la Grande Mosquée de Djenné.',
-    icon: '🕌'
-  },
-  {
-    id: 'art',
-    title: 'Art du Bogolan',
-    desc: 'L\'art sacré de la teinture à la terre et les motifs traditionnels.',
-    image: 'https://images.unsplash.com/photo-1621503716719-f70346387a22?auto=format&fit=crop&q=80&w=800',
-    prompt: 'Quelle est la signification des motifs du Bogolan malien et comment est-il fabriqué ?',
-    icon: '🎨'
-  },
-  {
-    id: 'music',
-    title: 'Musique & Griots',
-    desc: 'Le son cristallin de la Kora et les récits des gardiens de la mémoire.',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-    prompt: 'Parle-moi de la musique malienne, de la Kora et du rôle social des Griots.',
-    icon: '🎵'
-  },
-  {
-    id: 'gastronomy',
-    title: 'Gastronomie',
-    desc: 'Tigadèguèna, Mafé, et le célèbre riz au gras malien.',
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800',
-    prompt: 'Quels sont les plats traditionnels maliens incontournables comme le Tigadèguèna ou le Mafé ?',
-    icon: '🍲'
-  },
-  {
-    id: 'dogon',
-    title: 'Pays Dogon',
-    desc: 'Les falaises de Bandiagara et la cosmogonie fascinante des Dogons.',
-    image: 'https://images.unsplash.com/photo-1509015392842-8c76743b0704?auto=format&fit=crop&q=80&w=800',
-    prompt: 'Parle-moi du Peuple Dogon, de leurs traditions astronomiques et des falaises de Bandiagara.',
-    icon: '👺'
-  }
+const INFO_CARDS = [
+  { title: "L'Empire du Mali", val: "1235-1670", icon: "🏛️", desc: "Le plus puissant d'Afrique de l'Ouest." },
+  { title: "Manuscrits", val: "300,000+", icon: "📜", desc: "Tombouctou, centre du savoir mondial." },
+  { title: "Population", val: "22 Millions", icon: "👥", desc: "Une mosaïque d'ethnies unies." },
+  { title: "Or du Mali", val: "3ème Prod.", icon: "💎", desc: "Richesse minière ancestrale." },
 ];
 
 const MaliDiscovery: React.FC<MaliDiscoveryProps> = ({ isOpen, onClose, onExploreTopic }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-50 dark:bg-slate-950 animate-in slide-in-from-bottom duration-500 overflow-hidden">
-      {/* Header Immersif */}
-      <div className="relative h-64 md:h-80 shrink-0">
-        <img 
-          src="https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&q=80&w=1200" 
-          className="w-full h-full object-cover"
-          alt="Mali Landscape"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 via-transparent to-black/30"></div>
+    <div className="fixed inset-0 z-[60] flex justify-end">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
+      
+      <div className="relative w-full md:w-[450px] h-full bg-white dark:bg-slate-950 shadow-2xl animate-in slide-in-from-right duration-500 flex flex-col border-l-8 border-orange-500">
         
-        <button 
-          onClick={onClose}
-          className="absolute top-6 left-6 p-3 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white transition-all hover:scale-110"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        <div className="absolute bottom-8 left-8 right-8">
-          <h1 className="text-4xl md:text-6xl font-black heading-font text-slate-900 dark:text-white mb-2">
-            Mali <span className="text-green-600">Dembaya</span>
-          </h1>
-          <p className="text-lg text-slate-700 dark:text-slate-300 font-medium max-w-2xl italic">
-            "Le Mali est un pays de rencontre, de paix et de culture millénaire. Bienvenue chez vous."
-          </p>
+        <div className="relative h-64 shrink-0 overflow-hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&q=80&w=1000" 
+            className="w-full h-full object-cover" 
+            alt="Mali" 
+            crossOrigin="anonymous"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-transparent to-transparent"></div>
+          <button onClick={onClose} className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-xl rounded-2xl text-white border border-white/20 hover:bg-white/40 transition-all">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+          <div className="absolute bottom-8 left-8">
+            <span className="text-[10px] font-black bg-orange-500 text-white px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block">Mali Ba</span>
+            <h2 className="text-4xl font-black text-slate-950 dark:text-white tracking-tighter">LE MALI <br/><span className="text-orange-600 italic">ÉTERNEL</span></h2>
+          </div>
         </div>
-      </div>
 
-      {/* Contenu Scrollable */}
-      <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MALI_SECTIONS.map((section) => (
-              <div 
-                key={section.id}
-                className="group relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-green-500/10"
-              >
-                <div className="h-48 relative overflow-hidden">
-                  <img 
-                    src={section.image} 
-                    alt={section.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-2 rounded-xl text-2xl shadow-lg">
-                    {section.icon}
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 heading-font text-slate-900 dark:text-white">{section.title}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 line-clamp-2 leading-relaxed">
-                    {section.desc}
-                  </p>
-                  
-                  <button 
-                    onClick={() => {
-                      onExploreTopic(section.prompt);
-                      onClose();
-                    }}
-                    className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-green-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/btn"
-                  >
-                    Demander à Mohamed
-                    <svg className="w-4 h-4 transform transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </button>
-                </div>
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+          
+          <div className="grid grid-cols-2 gap-4">
+            {INFO_CARDS.map((card, i) => (
+              <div key={i} className="p-4 bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 group hover:border-orange-500 transition-all">
+                <span className="text-2xl mb-2 block">{card.icon}</span>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{card.title}</p>
+                <p className="text-lg font-black text-slate-950 dark:text-white my-1">{card.val}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{card.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-16 p-8 bg-green-600 rounded-[2.5rem] text-white flex flex-col md:flex-row items-center gap-8 shadow-2xl shadow-green-600/30">
-            <div className="shrink-0 w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl">
-              🌍
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h4 className="text-2xl font-bold mb-2">Un pays d'hospitalité (Diatiguiya)</h4>
-              <p className="text-green-50 opacity-90 leading-relaxed">
-                Le Mali n'est pas seulement un territoire, c'est une âme. De Bamako à Gao, chaque ville raconte une histoire de bravoure, de commerce et de sagesse. Continuez à explorer pour comprendre pourquoi nous sommes fiers de nos racines.
-              </p>
-            </div>
-            <button 
-              onClick={() => onExploreTopic("Fais-moi découvrir une anecdote surprenante sur le Mali.")}
-              className="px-6 py-4 bg-white text-green-700 font-bold rounded-2xl hover:bg-green-50 transition-colors whitespace-nowrap shadow-xl"
-            >
-              Anecdote Aléatoire
-            </button>
+          <div className="space-y-4">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-600 px-1">Patrimoine UNESCO</h3>
+            {[
+              { 
+                t: "La Falaise de Bandiagara", 
+                d: "Pays Dogon, mystère et cosmogonie.", 
+                p: "Parle-moi en détail de la Falaise de Bandiagara au Pays Dogon. Explique pourquoi c'est un site unique au monde classé par l'UNESCO, en abordant à la fois le paysage grandiose et la richesse culturelle de la cosmogonie Dogon." 
+              },
+              { 
+                t: "Villes de Terre (Djenné)", 
+                d: "Djenné et son architecture unique.", 
+                p: "Explique-moi l'histoire et la splendeur des Villes anciennes de Djenné. Focalise-toi sur son architecture exceptionnelle en terre crue, la Grande Mosquée, et l'importance de ce patrimoine mondial pour l'identité malienne." 
+              },
+              { 
+                t: "Tombouctou", 
+                d: "La perle du désert, cité des 333 saints.", 
+                p: "Raconte-moi l'histoire de la cité mystérieuse de Tombouctou. Parle de ses mosquées mythiques (Djingareyber, Sankoré, Sidi Yahia) et de ses précieux manuscrits anciens qui témoignent de l'âge d'or intellectuel du Mali." 
+              }
+            ].map((item, i) => (
+              <button 
+                key={i} 
+                onClick={() => { onExploreTopic(item.p); onClose(); }}
+                className="w-full p-5 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-3xl text-left hover:border-orange-500 shadow-sm hover:shadow-xl transition-all group"
+              >
+                <h4 className="font-black text-slate-950 dark:text-white group-hover:text-orange-600 transition-colors">{item.t}</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{item.d}</p>
+              </button>
+            ))}
           </div>
+
+          <div className="p-6 bg-slate-950 rounded-3xl text-white relative overflow-hidden group cursor-pointer" onClick={() => onExploreTopic("Donne-moi un proverbe malien célèbre et explique-le.")}>
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-150 transition-transform"><span className="text-6xl">🖋️</span></div>
+            <h4 className="font-black text-lg mb-2">Sagesse Malienne</h4>
+            <p className="text-xs text-slate-400 leading-relaxed italic">"C'est au bout de l'ancienne corde qu'on tisse la nouvelle."</p>
+            <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-orange-500">
+               <span>Explorer les proverbes</span>
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </div>
+          </div>
+
         </div>
-        
-        <footer className="mt-20 py-8 text-center opacity-30">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em]">Patrimoine du Mali • Mohamed AI 2025</p>
-        </footer>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 
-import React, { useState, useRef, useMemo } from 'react';
-import { Language, SUPPORTED_LANGUAGES, ChatSession } from '../types';
+import React, { useState } from 'react';
+import { Language, SUPPORTED_LANGUAGES, ChatSession, VoiceName, VoiceConfig } from '../types';
+import { VisualTheme } from '../App';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,216 +18,198 @@ interface SidebarProps {
   onDeleteSession: (id: string) => void;
   onOpenDiscovery: () => void;
   onOpenAfricaDiscovery: () => void;
+  onOpenTourist: () => void;
+  onOpenWallpaper: () => void;
+  onOpenImageStudio: () => void;
+  onOpenMap: () => void;
+  onOpenNews: () => void;
+  translationTarget: Language | null;
+  onSetTranslationTarget: (lang: Language | null) => void;
+  currentVisualTheme: VisualTheme;
+  onVisualThemeSelect: (theme: VisualTheme) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
-  isOpen, 
-  setIsOpen, 
-  currentLanguage, 
-  onLanguageSelect, 
-  onSelectTopic,
-  chatWallpaper,
-  onWallpaperSelect,
-  sessions,
-  currentSessionId,
-  onSelectSession,
-  onNewChat,
-  onDeleteSession,
-  onOpenDiscovery,
-  onOpenAfricaDiscovery
+  isOpen, setIsOpen, sessions, currentSessionId, onSelectSession, onNewChat,
+  onDeleteSession, onOpenDiscovery, onOpenAfricaDiscovery, onOpenTourist, 
+  onOpenWallpaper, onOpenImageStudio, onOpenMap, onOpenNews, translationTarget, onSetTranslationTarget 
 }) => {
-  const [historySearch, setHistorySearch] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showTransPicker, setShowTransPicker] = useState(false);
 
-  const suggestedWallpapers = [
-    { id: 'none', label: 'Défaut', value: null, icon: '🚫' },
-    { id: 'bogolan', label: 'Bogolan', value: 'https://images.unsplash.com/photo-1621503716719-f70346387a22?auto=format&fit=crop&q=80&w=800', icon: '🎨' },
-    { id: 'savannah', label: 'Savane', value: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&q=80&w=800', icon: '🦓' },
-    { id: 'niger', label: 'Niger', value: 'https://images.unsplash.com/photo-1509015392842-8c76743b0704?auto=format&fit=crop&q=80&w=800', icon: '🚣' },
+  // Configuration des "Barres d'Options" de Découverte
+  const discoveryBars = [
+    { label: 'Actualités', icon: '📡', color: 'from-sky-600 via-sky-500 to-cyan-400', shadow: 'shadow-sky-500/40', action: onOpenNews, desc: 'En Direct du Web', delay: '50ms' },
+    { label: 'Mali', icon: '🇲🇱', color: 'from-orange-600 via-amber-500 to-yellow-400', shadow: 'shadow-orange-500/40', action: onOpenDiscovery, desc: 'Culture & Traditions', delay: '150ms' },
+    { label: 'Afrique', icon: '🌍', color: 'from-emerald-600 via-green-500 to-lime-400', shadow: 'shadow-emerald-500/40', action: onOpenAfricaDiscovery, desc: 'Union & Futur', delay: '250ms' },
+    { label: 'Exploration 3D', icon: '🗺️', color: 'from-blue-600 via-indigo-500 to-violet-500', shadow: 'shadow-blue-500/40', action: onOpenMap, desc: 'Voyage Immersif', delay: '350ms' },
+    { label: 'Studio d\'Art', icon: '🖌️', color: 'from-rose-600 via-red-500 to-orange-400', shadow: 'shadow-red-500/40', action: onOpenImageStudio, desc: 'Générateur d\'Images', delay: '450ms' },
+    { label: 'Guide Voyage', icon: '🧳', color: 'from-purple-600 via-fuchsia-500 to-pink-500', shadow: 'shadow-purple-500/40', action: onOpenTourist, desc: 'Itinéraires Experts', delay: '550ms' },
   ];
-
-  const filteredSessions = useMemo(() => {
-    return sessions.filter(s => 
-      s.title.toLowerCase().includes(historySearch.toLowerCase()) ||
-      s.messages.some(m => m.text.toLowerCase().includes(historySearch.toLowerCase()))
-    );
-  }, [sessions, historySearch]);
-
-  const groupedSessions = useMemo(() => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const groups: { [key: string]: ChatSession[] } = {
-      "Aujourd'hui": [],
-      "Hier": [],
-      "Plus ancien": []
-    };
-
-    filteredSessions.forEach(s => {
-      const d = new Date(s.lastModified);
-      if (d >= today) groups["Aujourd'hui"].push(s);
-      else if (d >= yesterday) groups["Hier"].push(s);
-      else groups["Plus ancien"].push(s);
-    });
-
-    return Object.entries(groups).filter(([_, items]) => items.length > 0);
-  }, [filteredSessions]);
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => onWallpaperSelect(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setIsOpen(false)} />}
-
-      <aside className={`fixed lg:static inset-y-0 left-0 w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex flex-col h-full transition-colors duration-300">
+      {/* Overlay mobile */}
+      {isOpen && <div className="fixed inset-0 bg-black/60 z-20 lg:hidden backdrop-blur-sm" onClick={() => setIsOpen(false)} />}
+      
+      <aside className={`fixed lg:static inset-y-0 left-0 w-80 bg-theme-surface border-r-2 border-slate-200 dark:border-slate-800 z-30 transform transition-all duration-500 ease-in-out ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="flex flex-col h-full">
           
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-            <span className="text-xl font-bold heading-font">
-               <span className="text-green-600">Mohamed</span> AI
-            </span>
-            <button onClick={() => setIsOpen(false)} className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          {/* Header */}
+          <div className="p-6 border-b-2 border-slate-100 dark:border-slate-800 flex justify-between items-center bg-theme-surface/80 backdrop-blur-md sticky top-0 z-20">
+            <div className="flex flex-col">
+              <span className="text-xl font-black text-theme-text tracking-tighter">
+                MOHAMED <span className="text-theme-primary">AI</span>
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">L'Assistant du Mali</span>
+            </div>
+            <button onClick={() => setIsOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-red-500 transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 space-y-8 custom-scrollbar pb-10">
             
-            {/* BOUTON DÉCOUVERTE MALI */}
-            <button 
-              onClick={onOpenDiscovery}
-              className="w-full py-4 px-4 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-white font-black flex items-center justify-center gap-3 shadow-xl shadow-amber-500/20 hover:scale-[1.02] transition-all active:scale-95 border-b-4 border-amber-700 group"
-            >
-              <span className="text-2xl group-hover:animate-bounce">🇲🇱</span>
-              <span className="uppercase tracking-widest text-xs">Découvrir le Mali</span>
-            </button>
-
-            {/* BOUTON DÉCOUVERTE AFRIQUE */}
-            <button 
-              onClick={onOpenAfricaDiscovery}
-              className="w-full py-4 px-4 rounded-2xl bg-gradient-to-br from-green-600 via-yellow-500 to-red-600 text-white font-black flex items-center justify-center gap-3 shadow-xl shadow-red-500/20 hover:scale-[1.02] transition-all active:scale-95 border-b-4 border-red-800 group"
-            >
-              <span className="text-2xl group-hover:animate-spin duration-1000">🌍</span>
-              <span className="uppercase tracking-widest text-xs">L'Afrique en Couleurs</span>
-            </button>
-
-            {/* NEW CHAT BUTTON */}
-            <button 
-              onClick={onNewChat}
-              className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold flex items-center justify-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-              Nouvelle Palabre
-            </button>
-
-            {/* HISTORY SEARCH */}
-            <div className="px-1 pt-2">
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Chercher une discussion..." 
-                  value={historySearch}
-                  onChange={(e) => setHistorySearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-xs font-bold focus:ring-2 focus:ring-green-500 transition-all placeholder-slate-400 dark:placeholder-slate-500"
-                />
-                <svg className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              </div>
-            </div>
-
-            {/* HISTORY LIST */}
-            <div className="space-y-4">
-              {groupedSessions.length > 0 ? groupedSessions.map(([groupName, items]) => (
-                <div key={groupName} className="space-y-1">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 px-3 py-2">{groupName}</h4>
-                  {items.map(s => (
-                    <div key={s.id} className="group relative">
-                      <button
-                        onClick={() => { onSelectSession(s.id); setIsOpen(false); }}
-                        className={`w-full text-left px-3 py-3 rounded-xl transition-all flex flex-col gap-0.5 ${currentSessionId === s.id ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-600' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
-                      >
-                        <span className={`text-xs font-bold truncate pr-6 ${currentSessionId === s.id ? 'text-green-700 dark:text-green-400' : 'text-slate-700 dark:text-slate-300'}`}>
-                          {s.title}
-                        </span>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium italic">
-                          {s.messages.length} messages • {s.languageCode.toUpperCase()}
-                        </span>
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onDeleteSession(s.id); }}
-                        className="absolute right-2 top-3 p-1.5 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all rounded-lg"
-                        title="Supprimer"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
-                    </div>
-                  ))}
+            {/* BARRE : NOUVELLE PALABRE */}
+            <section className="space-y-3">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2">Action</h4>
+              <button 
+                onClick={onNewChat} 
+                className="w-full py-4 rounded-2xl bg-theme-primary text-white font-black flex items-center justify-center gap-3 shadow-xl shadow-theme-primary/20 uppercase tracking-widest text-[11px] hover:bg-theme-secondary hover:scale-[1.02] transition-all active:scale-95 group"
+              >
+                <div className="bg-white/20 p-1.5 rounded-lg group-hover:rotate-90 transition-transform">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
                 </div>
-              )) : (
-                <div className="px-3 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase italic tracking-widest">Aucune discussion trouvée</p>
+                Nouvelle palabre
+              </button>
+            </section>
+
+            {/* BARRE : HISTORIQUE */}
+            <section className="space-y-3">
+               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2 flex items-center justify-between">
+                 <span>Historique des palabres</span>
+                 <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-[9px]">{sessions.length}</span>
+               </h4>
+               <div className="space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar pr-1">
+                 {sessions.length === 0 ? (
+                   <p className="text-[10px] text-slate-400 italic px-4 py-6 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl text-center">Aucune discussion mémorisée...</p>
+                 ) : (
+                   sessions.map((session) => (
+                     <div 
+                      key={session.id}
+                      className={`group relative flex items-center gap-3 p-3 rounded-2xl transition-all cursor-pointer border-2 ${currentSessionId === session.id ? 'bg-theme-primary/5 border-theme-primary/30 shadow-sm' : 'hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent'}`}
+                      onClick={() => { onSelectSession(session.id); if(window.innerWidth < 1024) setIsOpen(false); }}
+                     >
+                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-md shrink-0 ${currentSessionId === session.id ? 'bg-theme-primary text-white shadow-lg shadow-theme-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:text-theme-primary'}`}>💬</div>
+                       <div className="flex-1 min-w-0">
+                         <h5 className={`text-[11px] font-black truncate ${currentSessionId === session.id ? 'text-theme-primary' : 'text-theme-text'}`}>{session.title}</h5>
+                       </div>
+                       <button 
+                         onClick={(e) => { e.stopPropagation(); onDeleteSession(session.id); }}
+                         className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                       </button>
+                     </div>
+                   ))
+                 )}
+               </div>
+            </section>
+
+            {/* BARRES D'OPTIONS : DÉCOUVERTE */}
+            <section className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2 flex items-center gap-2">
+                <span className="w-1 h-1 bg-theme-primary rounded-full"></span>
+                Options de Découverte
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                {discoveryBars.map((item) => (
+                  <button 
+                    key={item.label} 
+                    onClick={() => { item.action(); if(window.innerWidth < 1024) setIsOpen(false); }} 
+                    style={{ animationDelay: item.delay }}
+                    className={`group relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br ${item.color} text-white text-left transition-all hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-2xl ${item.shadow} animate-in slide-in-from-left duration-700 fill-mode-both border border-white/10`}
+                  >
+                    {/* Glass Overlay */}
+                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <div className="relative z-10 flex items-center gap-4">
+                      <div className="bg-white/20 w-12 h-12 flex items-center justify-center rounded-xl backdrop-blur-md shadow-inner group-hover:rotate-6 transition-transform">
+                        <span className="text-2xl block icon-float">{item.icon}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[12px] font-black uppercase tracking-[0.1em]">{item.label}</span>
+                        <span className="text-[9px] font-bold opacity-70 group-hover:opacity-100 transition-opacity">{item.desc}</span>
+                      </div>
+                      <div className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* BARRE : TRADUCTEUR RAPIDE */}
+            <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+               <div className="flex items-center justify-between px-2">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Traducteur</h4>
+                <button 
+                  onClick={() => onSetTranslationTarget(translationTarget ? null : SUPPORTED_LANGUAGES.find(l => l.code === 'fr') || SUPPORTED_LANGUAGES[0])}
+                  className={`w-10 h-5 rounded-full transition-all relative ${translationTarget ? 'bg-theme-primary shadow-sm' : 'bg-slate-300 dark:bg-slate-700'}`}
+                >
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${translationTarget ? 'left-5.5' : 'left-0.5'}`} />
+                </button>
+              </div>
+              
+              {translationTarget && (
+                <div className="relative px-1">
+                  <button onClick={() => setShowTransPicker(!showTransPicker)} className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 border-2 border-theme-primary/20 rounded-xl hover:border-theme-primary transition-all group">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xl shrink-0">{translationTarget.flag}</span>
+                      <span className="text-[11px] font-bold text-theme-text truncate">{translationTarget.name}</span>
+                    </div>
+                    <svg className={`w-4 h-4 text-theme-primary transition-transform shrink-0 ${showTransPicker ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                  {showTransPicker && (
+                    <div className="absolute bottom-full left-0 right-0 mb-2 z-40 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl p-2 animate-in zoom-in duration-200">
+                      <div className="max-h-[200px] overflow-y-auto custom-scrollbar space-y-1">
+                        {SUPPORTED_LANGUAGES.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => { onSetTranslationTarget(lang); setShowTransPicker(false); }}
+                            className={`w-full flex items-center gap-3 p-2.5 rounded-lg transition-all ${translationTarget?.code === lang.code ? 'bg-theme-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-theme-text'}`}
+                          >
+                            <span className="text-lg">{lang.flag}</span>
+                            <span className="text-[10px] font-bold truncate">{lang.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-
-            {/* LANGUAGES */}
-            <div>
-              <h3 className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 px-2 flex items-center gap-2">
-                <span className="w-4 h-[1px] bg-slate-300 dark:bg-slate-700"></span>
-                Langues
-              </h3>
-              <div className="grid grid-cols-1 gap-1 px-1">
-                {SUPPORTED_LANGUAGES.filter(l => l.isAfrican).slice(0, 5).map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => onLanguageSelect(lang)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${currentLanguage.code === lang.code ? 'bg-green-600 text-white' : 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750'}`}
-                  >
-                    <span className="flex items-center gap-2"><span>{lang.flag}</span> {lang.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* WALLPAPERS */}
-            <div>
-              <h3 className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 px-2 flex items-center gap-2">
-                <span className="w-4 h-[1px] bg-slate-300 dark:bg-slate-700"></span>
-                Fonds
-              </h3>
-              <div className="grid grid-cols-4 gap-2 px-1">
-                {suggestedWallpapers.map((wp) => (
-                  <button
-                    key={wp.id}
-                    onClick={() => onWallpaperSelect(wp.value)}
-                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${chatWallpaper === wp.value ? 'border-green-500' : 'border-transparent'}`}
-                    title={wp.label}
-                  >
-                    {wp.value ? <img src={wp.value} className="w-full h-full object-cover" alt={wp.label} /> : <div className="w-full h-full flex items-center justify-center text-xs bg-slate-100 dark:bg-slate-800">{wp.icon}</div>}
-                  </button>
-                ))}
-                <button onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-green-500">+</button>
-                <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
-              </div>
-            </div>
-
+            </section>
           </div>
 
-          <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 text-center">
-             <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">🌍 Mohamed AI Historique</p>
+          {/* Footer Sidebar */}
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-theme-surface/80 flex flex-col items-center gap-1">
+            <p className="text-[9px] font-black text-theme-primary uppercase tracking-widest">Créé par Mohamed Coulibaly</p>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Version 3.5 — Infos Live Edition</p>
           </div>
         </div>
       </aside>
+
+      <style>{`
+        .icon-float { animation: icon-float 3s ease-in-out infinite; }
+        @keyframes icon-float {
+          0%, 100% { transform: translateY(0) rotate(0); }
+          50% { transform: translateY(-4px) rotate(8deg); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+      `}</style>
     </>
   );
 };
-
 export default Sidebar;

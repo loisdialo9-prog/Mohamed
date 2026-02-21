@@ -1,8 +1,22 @@
 
 export type MessageRole = 'user' | 'model';
 
+// VoiceName est maintenant une string pour permettre des noms personnalisés si l'API évolue
+export type VoiceName = string;
+
+export type Emotion = 'SAGESSE' | 'JOIE' | 'FIERTÉ' | 'EMPATHIE' | 'ÉNERGIE' | 'NEUTRE';
+
+export interface VoiceConfig {
+  name: VoiceName;
+  personality: string; // Description de l'aura vocale (ex: "Vieil homme sage", "Jeune dynamique")
+}
+
 export interface GroundingChunk {
   maps?: {
+    uri: string;
+    title: string;
+  };
+  web?: {
     uri: string;
     title: string;
   };
@@ -12,7 +26,10 @@ export interface Message {
   id: string;
   role: MessageRole;
   text: string;
+  emotion?: Emotion;
+  translation?: string;
   imageUrl?: string;
+  videoUrl?: string;
   timestamp: Date;
   groundingChunks?: GroundingChunk[];
 }
